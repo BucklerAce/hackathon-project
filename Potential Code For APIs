@@ -1,0 +1,136 @@
+For the translate aspect of the app/website
+
+First snippet of code from Fpunkt on Stack Overflow
+##
+    import React from 'react'
+
+    export default class Translate extends React.Component{
+
+      constructor(props){
+
+        super(props)
+
+        this.state={
+
+          greeting:'I say: "Hello, you all!"',
+          greeting_in_user_language: null
+
+        }
+
+        this.userLanguage = navigator.language.slice(0,2)
+        this.API_KEY = 'YOUR_API_KEY'
+        this.URL = `https://translation.googleapis.com/language/translate/v2?key=${this.API_KEY}&source=en`
+        this.URL += `&target=${this.userLanguage}`
+
+      }
+      componentWillMount() {
+
+        this.translate( 'greeting_in_user_language', '&q=' + encodeURI(this.state.greeting))
+
+      }
+
+      translate = (key,string_to_translate) => {
+
+
+        fetch(this.URL+string_to_translate)
+          .then(res => res.json())
+          .then(
+            ( res ) => { 
+              let text = res.data.translations[0].translatedText.replace(/(&quot\;)/g,"\"")
+              this.setState({[key]:text})
+            }      
+          ) .catch(
+              ( error ) => { 
+                console.log("There was an error: ", error); 
+              }
+            )
+      }
+
+      render() {
+        return(
+          <>
+          <section className="page">
+            <p>{
+             this.state.greeting_in_user_language ?  
+                this.state.greeting_in_user_language : 
+                this.state.greeting
+            }</p>
+          </section>
+          </>
+        )
+      }
+     }
+##
+
+second snippet of code is from cbutler and edited by Saeed Zhiany from Stack Overflow
+
+##
+let fromLang = 'en';
+let toLang = 'no'; // translate to norwegian
+let text = 'something to translate';
+
+const API_KEY = [YOUR_API_KEY];
+
+let url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`;
+url += '&q=' + encodeURI(text);
+url += `&source=${fromLang}`;
+url += `&target=${toLang}`;
+
+fetch(url, { 
+  method: 'GET',
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json"
+  }
+})
+.then(res => res.json())
+.then((response) => {
+  console.log("response from google: ", response);
+})
+.catch(error => {
+  console.log("There was an error with the translation request: ", error);
+});
+##
+
+third snippet of code is from baseem from Stack Overflow
+##
+class App extends Component {
+  constructor(props){
+    super(props);
+
+    this.state = {
+      value: '',
+      translated: '...'
+    }
+    this.translate=this.translate.bind(this);
+  }
+
+  translate(){
+    axios.post('http://localhost:9000/translate',{q:this.state.value})
+    .then(data => {
+      this.setState({translated: data.data.data.translations[0].translatedText})
+      console.log(data.data.data.translations[0].translatedText)
+    }).catch(err => {
+      console.log('error')
+    })
+  }
+
+
+
+  render() {
+    return (
+      <div>
+        <input 
+          value={this.state.value}
+          onChange={(e)=>this.setState({value: e.target.value})}
+          type="text"/>
+        <button onClick={this.translate}>Submit</button>
+        <h1>{this.state.translated}</h1>
+      </div>
+
+    );
+  }
+}
+
+export default App;
+##
